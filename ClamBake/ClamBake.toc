@@ -1,0 +1,13 @@
+## Interface: 20504
+## Title: ClamBake
+## Version: 1.0.0
+## Authors: MrPlasticJesus
+## OptionalDeps: Ace3
+## SavedVariablesPerCharacter: ClamBakeDatabase
+#@no-lib-strip@
+embeds.xml
+#@end-no-lib-strip@
+
+ClamBakeDatabase.lua
+ClamBakeOptions.lua
+ClamBake.lua
