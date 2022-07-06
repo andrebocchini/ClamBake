@@ -32,29 +32,34 @@ local eventHandlers = {
             return
         end
 
-        ClamBake:Debug("Bags updated")
-        ClamBake:OpenAllClams()
         clamPendingOpening = false
+
+        local bag = select(1, ...)
+
+        if not bag then
+            return
+        end
+
+        ClamBake:Debug("Bag " .. bag .. " updated")
+        ClamBake:OpenAllClams(bag)
     end
 }
 
-function ClamBake:OpenAllClams()
-    for bag = 0, 4 do
-        ClamBake:Debug("Starting search for clams in bag " .. bag)
+function ClamBake:OpenAllClams(bag)
+    ClamBake:Debug("Starting search for clams in bag " .. bag)
 
-        for bagSlot = 1, GetContainerNumSlots(bag) do
-            local bagItemId = GetContainerItemID(bag, bagSlot)
+    for bagSlot = 1, GetContainerNumSlots(bag) do
+        local bagItemId = GetContainerItemID(bag, bagSlot)
 
-            if bagItemId then
-                local itemName = select(1, GetItemInfo(bagItemId))
-                local isClam = ClamBake:isClam(bagItemId)
+        if bagItemId then
+            local itemName = select(1, GetItemInfo(bagItemId))
+            local isClam = ClamBake:isClam(bagItemId)
 
-                if isClam == true then
-                    ClamBake:Debug("Found a clam in bag " .. bag .. " slot " .. bagSlot, 0, 1, 0)
-                    ClamBake:Print("Opening a " .. itemName .. " found in bag " .. bag .. " slot " .. bagSlot)
+            if isClam == true then
+                ClamBake:Debug("Found a clam in bag " .. bag .. " slot " .. bagSlot, 0, 1, 0)
+                ClamBake:Print("Opening a " .. itemName .. " found in bag " .. bag .. " slot " .. bagSlot)
 
-                    UseContainerItem(bag, bagSlot)
-                end
+                UseContainerItem(bag, bagSlot)
             end
         end
     end
