@@ -1,15 +1,18 @@
-ClamBake = LibStub("AceAddon-3.0"):NewAddon("ClamBake")
+local addonName = ...
+
+ClamBake = LibStub("AceAddon-3.0"):NewAddon(addonName)
 
 local AceDB = LibStub("AceDB-3.0")
 local AceConfig = LibStub("AceConfig-3.0")
 local AceConfigDialog = LibStub("AceConfigDialog-3.0")
+local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
 
 local clamPendingOpening = false
 
 local eventHandlers = {
     ["CHAT_MSG_LOOT"] = function(...)
         if ClamBake.database.profile.settings.enable == false then
-            ClamBake:Debug("ClamBake disabled. Skipping checks.")
+            ClamBake:Debug(addonName .. " disabled. Skipping checks.")
             return
         end
 
@@ -45,6 +48,37 @@ local eventHandlers = {
     end
 }
 
+
+function ClamBake:Debug(string, r, g, b)
+    if self.database.profile.settings.debug == false then
+        return
+    end
+
+    if not string then
+        string = "(nil)"
+    end
+
+    if not r then
+        r = 1
+    end
+
+    if not g then
+        g = 0
+    end
+
+    if not b then
+        b = 0
+    end
+
+    self:Print(string, r, g, b)
+end
+
+
+function ClamBake:Print(string, r, g, b)
+    DEFAULT_CHAT_FRAME:AddMessage("[" .. addonName .. "] " .. string, r, g, b)
+end
+
+
 function ClamBake:OpenAllClams(bag)
     ClamBake:Debug("Starting search for clams in bag " .. bag)
 
@@ -53,11 +87,11 @@ function ClamBake:OpenAllClams(bag)
 
         if bagItemId then
             local itemName = select(1, GetItemInfo(bagItemId))
-            local isClam = ClamBake:isClam(bagItemId)
+            local isClam = self:isClam(bagItemId)
 
             if isClam == true then
-                ClamBake:Debug("Found a clam in bag " .. bag .. " slot " .. bagSlot, 0, 1, 0)
-                ClamBake:Print("Opening a " .. itemName .. " found in bag " .. bag .. " slot " .. bagSlot)
+                self:Debug("Found a clam in bag " .. bag .. " slot " .. bagSlot, 0, 1, 0)
+                self:Print(L["Opening a "] .. itemName .. L[" found in bag "] .. bag .. L[" slot "] .. bagSlot)
 
                 UseContainerItem(bag, bagSlot)
             end
@@ -91,40 +125,9 @@ function ClamBake:isClam(identifier)
 end
 
 
-function ClamBake:Debug(string, r, g, b)
-    if not string then
-        string = "(nil)"
-    end
-
-    local red = 1
-    local green = 0
-    local blue = 0
-
-    if r then
-        red = r
-    end
-
-    if g then
-        green = g
-    end
-
-    if blue then
-        blue = b
-    end
-
-    if self.database.profile.settings.debug == true then
-        DEFAULT_CHAT_FRAME:AddMessage("[ClamBake] " .. string, red, green, blue)
-    end
-end
-
-
-function ClamBake:Print(string, r, g, b)
-    DEFAULT_CHAT_FRAME:AddMessage("[ClamBake] " .. string, r, g, b)
-end
-
-
 function ClamBake:OnSettingToggled(info, input)
-    self:Debug(tostring(info["option"].name) .. " set to: " .. tostring(input))
+    local status = (input == true) and L["On"] or L["Off"]
+    self:Print(tostring(info["option"].name) .. " " .. status)
 end
 
 
@@ -132,19 +135,19 @@ function ClamBake:Status()
     local status
 
     if self.database.profile.settings.enable == true then
-        status = "On"
+        status = L["On"]
     else
-        status = "Off"
+        status = L["Off"]
     end
 
-    self:Print(tostring("ClamBake is: " .. status))
+    self:Print(tostring(addonName .. L[" is"] .. ": " .. status))
 end
 
 
 -- Creates and registers the options window
 function ClamBake:RegisterOptions()
-    AceConfig:RegisterOptionsTable("ClamBake", ClamBake_Options, {"clambake", "cb"})
-    AceConfigDialog:AddToBlizOptions("ClamBake", "ClamBake")
+    AceConfig:RegisterOptionsTable(addonName, ClamBake_Options, {"clambake", "cb"})
+    AceConfigDialog:AddToBlizOptions(addonName, addonName)
 end
 
 
@@ -152,8 +155,9 @@ end
 function ClamBake:RegisterEvents()
     local EventFrame = CreateFrame("Frame", "ClamBake_EventFrame")
 
-    EventFrame:RegisterEvent("CHAT_MSG_LOOT")
-    EventFrame:RegisterEvent("BAG_UPDATE")
+    for event, _ in pairs(eventHandlers) do
+        EventFrame:RegisterEvent(event)
+    end
 
     EventFrame:SetScript("OnEvent", function(self, event, ...)
         local eventHandler = eventHandlers[event]
@@ -173,5 +177,9 @@ end
 function ClamBake:OnInitialize()
     self:InitializeDatabase()
     self:RegisterOptions()
+end
+
+
+function ClamBake:OnEnable()
     self:RegisterEvents()
 end

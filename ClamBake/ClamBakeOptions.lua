@@ -1,10 +1,13 @@
+local addonName = ...
+local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
+
 ClamBake_Options = {
-    name = "ClamBake",
+    name = addonName,
     type = "group",
     args = {
         enable = {
-            name = "Enable",
-            desc = "Enable/disable auto-opening clams",
+            name = L["Enable"],
+            desc = L["Enable/disable auto-opening clams"],
             type = "toggle",
             set = function(info, input)
                 ClamBake.database.profile.settings.enable = input
@@ -15,8 +18,8 @@ ClamBake_Options = {
             end
         },
         debug = {
-            name = "Debug",
-            desc = "Enables debug messages in chat",
+            name = L["Debug"],
+            desc = L["Enables debug messages in chat"],
             type = "toggle",
             set = function(info, input)
                 ClamBake.database.profile.settings.debug = input
@@ -27,7 +30,7 @@ ClamBake_Options = {
             end
         },
         status = {
-            name = "Display whether clam opening is enabled or disabled",
+            name = L["Display whether clam opening is enabled or disabled"],
             type = "execute",
             guiHidden = true,
             func = function ()
