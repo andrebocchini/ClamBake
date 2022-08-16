@@ -37,5 +37,13 @@ ClamBake_Options = {
                 ClamBake:Status()
             end
         },
+        open = {
+            name = L["Go through all bags and open any clams found"],
+            type = "execute",
+            guiHidden = true,
+            func = function ()
+                ClamBake:OpenAllClamsInAllBags()
+            end
+        },
     }
 }

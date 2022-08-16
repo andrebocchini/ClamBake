@@ -7,35 +7,10 @@ local AceConfig = LibStub("AceConfig-3.0")
 local AceConfigDialog = LibStub("AceConfigDialog-3.0")
 local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
 
-local clamPendingOpening = false
 
 local eventHandlers = {
-    ["CHAT_MSG_LOOT"] = function(...)
-        if ClamBake.database.profile.settings.enable == false then
-            ClamBake:Debug(addonName .. " disabled. Skipping checks.")
-            return
-        end
-
-        local lootMessage = select(1, ...)
-        ClamBake:Debug(lootMessage)
-
-        local startIndex, endIndex = lootMessage:find("%[.*%]")
-        local lootedItemName = string.sub(lootMessage, startIndex + 1, endIndex - 1)
-
-        clamPendingOpening = ClamBake:isClam(lootedItemName)
-
-        if clamPendingOpening == false then
-            ClamBake:Debug(lootedItemName .. " is not a clam.  I will not go through your bags.")
-        else
-            ClamBake:Debug(lootedItemName .. " is a clam. I will go through your bags next time they update.")
-        end
-    end,
     ["BAG_UPDATE"] = function(...)
-        if clamPendingOpening == false then
-            return
-        end
-
-        clamPendingOpening = false
+        ClamBake:Debug("Bag updated")
 
         local bag = select(1, ...)
 
@@ -43,7 +18,12 @@ local eventHandlers = {
             return
         end
 
-        ClamBake:Debug("Bag " .. bag .. " updated")
+        -- If this even fires for the default backpack, it fires with the bag id of -2
+        if bag == -2 then
+            bag = 0
+        end
+
+        ClamBake:Debug("Bag identified as " .. bag)
         ClamBake:OpenAllClams(bag)
     end
 }
@@ -82,6 +62,16 @@ end
 function ClamBake:OpenAllClams(bag)
     ClamBake:Debug("Starting search for clams in bag " .. bag)
 
+    if MerchantFrame and MerchantFrame:IsShown() then
+        ClamBake:Debug("Merchant frame is open. Trying to open a clam here would sell it. Aborting.")
+        return
+    end
+
+    -- If this even fires for the default backpack, it fires with a bag id of -2
+    if bag == -2 then
+        bag = 0
+    end
+
     for bagSlot = 1, GetContainerNumSlots(bag) do
         local bagItemId = GetContainerItemID(bag, bagSlot)
 
@@ -96,6 +86,13 @@ function ClamBake:OpenAllClams(bag)
                 UseContainerItem(bag, bagSlot)
             end
         end
+    end
+end
+
+
+function ClamBake:OpenAllClamsInAllBags()
+    for bag = 0, 4 do
+        self:OpenAllClams(bag)
     end
 end
 
@@ -177,9 +174,5 @@ end
 function ClamBake:OnInitialize()
     self:InitializeDatabase()
     self:RegisterOptions()
-end
-
-
-function ClamBake:OnEnable()
     self:RegisterEvents()
 end
