@@ -24,7 +24,7 @@ local eventHandlers = {
         end
 
         ClamBake:Debug("Bag identified as " .. bag)
-        ClamBake:OpenAllClams(bag)
+        ClamBake:OpenAllClamsInBag(bag)
     end
 }
 
@@ -59,7 +59,7 @@ function ClamBake:Print(string, r, g, b)
 end
 
 
-function ClamBake:OpenAllClams(bag)
+function ClamBake:OpenAllClamsInBag(bag)
     ClamBake:Debug("Starting search for clams in bag " .. bag)
 
     if MerchantFrame and MerchantFrame:IsShown() then
@@ -81,7 +81,6 @@ function ClamBake:OpenAllClams(bag)
 
             if isClam == true then
                 self:Debug("Found a clam in bag " .. bag .. " slot " .. bagSlot, 0, 1, 0)
-                self:Print(L["Opening a "] .. itemName .. L[" found in bag "] .. bag .. L[" slot "] .. bagSlot)
 
                 UseContainerItem(bag, bagSlot)
             end
@@ -92,7 +91,7 @@ end
 
 function ClamBake:OpenAllClamsInAllBags()
     for bag = 0, 4 do
-        self:OpenAllClams(bag)
+        self:OpenAllClamsInBag(bag)
     end
 end
 

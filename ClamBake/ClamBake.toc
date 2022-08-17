@@ -1,6 +1,6 @@
 ## Interface: 20504
 ## Title: ClamBake
-## Version: 1.2.0
+## Version: 1.2.1
 ## Authors: MrPlasticJesus
 ## OptionalDeps: Ace3
 ## SavedVariablesPerCharacter: ClamBakeDatabase

@@ -1,9 +1,6 @@
 local addonName = ...
 local L = LibStub("AceLocale-3.0"):NewLocale(addonName, "enUS", true)
 
-L[" slot "] = " slot "
-L["Opening a "] = "Opening a "
-L[" found in bag "] = " found in bag "
 L["On"] = "On"
 L["Off"] = "Off"
 L[" is"] = " is"
